@@ -1,4 +1,4 @@
-package ec.edu.ec.edu.puce.githubclient.ui.components
+package ec.edu.puce.githubclient.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,75 +14,81 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import ec.edu.puce.githubclient.models.GithubUser
+import ec.edu.puce.githubclient.models.Repository
+import ec.edu.puce.githubclient.ui.theme.GithubClientTheme
 
 @Composable
-fun RepoItem(
-    name: String,
-    description: String?,
-    avatarUrl: String,
-    language: String?
-) {
-    Card(
+fun RepoItem (repository: Repository) {
+    Card (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 8.dp)
-    ) {
-        Row(
+            .padding(8.dp)
+    ){
+        Row (
             modifier = Modifier
+                .padding(16.dp)
                 .fillMaxWidth()
-                .padding(all = 16.dp)
         ) {
-
             AsyncImage(
-                model = avatarUrl,
-                contentDescription = "Imagen de repositorio",
-                modifier = Modifier.size(60.dp),
+                model = repository.owner.avatarUrl,
+                contentDescription = "imagen de repositorio  ${repository.name}",
+                modifier = Modifier.size(size= 60.dp),
                 contentScale = ContentScale.Crop
             )
+            Spacer(modifier = Modifier.width(16.dp))
 
-            Spacer(modifier = Modifier.width(width = 16.dp))
-
-            Column {
-
+            Column ( modifier = Modifier.weight( 1f)) {
                 Text(
-                    text = name,
+                    text = repository.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
 
-                Spacer(modifier = Modifier.height(height = 4.dp))
+                    )
+                Spacer(modifier = Modifier.height( 4.dp))
 
-                if (!description.isNullOrBlank())
+                repository.description?.let {
+
                     Text(
-                        text = description,
+                        text = repository.description,
                         style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 3
                     )
+                }
 
-                Spacer(modifier = Modifier.height(height = 4.dp))
+                Spacer(modifier = Modifier.height( 4.dp))
 
-                if (!language.isNullOrBlank())
+                repository.language?.let {
                     Text(
-                        text = language,
-                        style = MaterialTheme.typography.bodySmall,
+                        text = it,
+                        style = MaterialTheme.typography.labelSmall,
                     )
-
+                }
             }
-
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun RepoItemPreview() {
-    RepoItem(
-        name = "Repositorio de Android",
-        description = "Repositorio creado desarrollo movil",
-        avatarUrl = "adasdasdadssa",
-        language = "Kotlin"
-    )
+fun RepoItemPreview () {
+    GithubClientTheme {
+        val repository = Repository(
+            "123123123",
+            "Nombre del repositorio",
+            description = "Descripción del repositorio",
+            language = "Kotlin",
+            owner = GithubUser(
+                id = "123123123",
+                "@giovanny070",
+                "https://github.com/giovanny070/Laboratorio-Android.git"
+
+            )
+        )
+        RepoItem(repository)
+
+    }
+
 }
