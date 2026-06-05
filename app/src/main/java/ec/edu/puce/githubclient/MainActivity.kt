@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ec.edu.puce.githubclient.Models.Repository
 import ec.edu.puce.githubclient.ui.screens.RepoForm
 import ec.edu.puce.githubclient.ui.screens.RepoList
 import ec.edu.puce.githubclient.ui.theme.GithubClientTheme
@@ -21,28 +22,42 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GithubClientTheme {
-                    var currentScreen by remember { mutableStateOf(value = "repoList") }
-                    val listViewModel: RepoListViewModel = viewModel()
-                    val formViewModel: RepoFormViewModel = viewModel()
+                var currentScreen by remember { mutableStateOf(value = "repoList") }
+                var repoToEdit by remember { mutableStateOf<Repository?>(null) }
 
-                    when (currentScreen) {
-                        "repoList" -> RepoList (
-                            onNavigateToForm = { currentScreen = "repoForm" }
-                        )
-                        "repoForm" -> RepoForm(
-                            onBackClick = {
-                                formViewModel.resetError()
-                                currentScreen = "repoList"
-                                          },
-                            onSaveSuccess = {
-                                listViewModel.fetchRepos()
-                                currentScreen = "repoList"
-                            }
+                val listViewModel: RepoListViewModel = viewModel()
+                val formViewModel: RepoFormViewModel = viewModel()
 
-                        )
-                    }
+                when (currentScreen) {
+                    "repoList" -> RepoList(
+                        viewModel = listViewModel,
+                        onNavigateToForm = {
+                            repoToEdit = null
+                            formViewModel.resetError()
+                            currentScreen = "repoForm"
+                        },
+                        onNavigateToEdit = { repo ->
+                            repoToEdit = repo
+                            formViewModel.resetError()
+                            currentScreen = "repoForm"
+                        }
+                    )
+
+                    "repoForm" -> RepoForm(
+                        viewModel = formViewModel,
+                        repoToEdit = repoToEdit,
+                        onBackClick = {
+                            formViewModel.resetError()
+                            formViewModel.resetSuccess()
+                            currentScreen = "repoList"
+                        },
+                        onSaveSuccess = {
+                            listViewModel.fetchRepos()
+                            currentScreen = "repoList"
+                        }
+                    )
+                }
             }
         }
     }
 }
-
